@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Book Management System</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        
+        .operations-panel {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .operations-panel h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .book-list {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .book-list h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .book-card {
+            background-color: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3498db;
+        }
+        
+        .book-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .book-details {
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .status-available {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .status-issued {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Library Book Management System</h1>
+            <p class="subtitle">Manage books, track availability, and handle issuing/returning</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="operations-panel">
+                <h2>Book Operations</h2>
+                
+                <div id="message"></div>
+                
+                <div class="form-group">
+                    <label for="bookTitle">Book Title</label>
+                    <input type="text" id="bookTitle" placeholder="Enter book title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bookAuthor">Author</label>
+                    <input type="text" id="bookAuthor" placeholder="Enter author name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bookIsbn">ISBN</label>
+                    <input type="text" id="bookIsbn" placeholder="Enter ISBN">
+                </div>
+                
+                <div class="form-group">
+                    <label for="memberId">Member ID (for issuing/returning)</label>
+                    <input type="text" id="memberId" placeholder="Enter member ID">
+                </div>
+                
+                <button id="addBookBtn">Add New Book</button>
+                <button id="issueBookBtn">Issue Book</button>
+                <button id="returnBookBtn">Return Book</button>
+                <button id="searchBookBtn">Search Book</button>
+                
+                <div style="margin-top: 20px;">
+                    <h3>Special Operations</h3>
+                    <button id="removeDamagedBtn">Remove Damaged Books</button>
+                    <button id="showAvailableBtn">Show Available Books</button>
+                    <button id="checkAllReturnedBtn">Check All Books Returned</button>
+                </div>
+            </div>
+            
+            <div class="book-list">
+                <h2>Book Collection</h2>
+                <div id="booksContainer"></div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalBooks">0</div>
+                <div class="stat-label">Total Books</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="availableBooks">0</div>
+                <div class="stat-label">Available Books</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="issuedBooks">0</div>
+                <div class="stat-label">Issued Books</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global books array
+        var books = [
+            { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", isbn: "978-0-7432-7356-5", available: true },
+            { id: 2, title: "To Kill a Mockingbird", author: "Harper Lee", isbn: "978-0-06-112008-4", available: true },
+            { id: 3, title: "1984", author: "George Orwell", isbn: "978-0-452-28423-4", available: false, issuedTo: "MEMBER001" },
+            { id: 4, title: "Pride and Prejudice", author: "Jane Austen", isbn: "978-0-14-143951-8", available: true },
+            { id: 5, title: "The Hobbit", author: "J.R.R. Tolkien", isbn: "978-0-547-92822-7", available: false, issuedTo: "MEMBER002" }
+        ];
+        
+        // Variable hoisting demonstration
+        console.log("Before declaration - hoistedVar:", hoistedVar); // undefined (hoisted)
+        // console.log("Before declaration - hoistedLet:", hoistedLet); // ReferenceError (not hoisted)
+        // console.log("Before declaration - hoistedConst:", hoistedConst); // ReferenceError (not hoisted)
+        
+        var hoistedVar = "I am hoisted with var";
+        let hoistedLet = "I am not hoisted with let";
+        const hoistedConst = "I am not hoisted with const";
+        
+        console.log("After declaration - hoistedVar:", hoistedVar);
+        console.log("After declaration - hoistedLet:", hoistedLet);
+        console.log("After declaration - hoistedConst:", hoistedConst);
+        
+        // Call listBooks() before its definition (hoisting demonstration)
+        listBooks();
+        
+        // Function to add a new book with default parameters
+        function addBook(title, author, isbn = "Unknown", available = true) {
+            // Block scope for conditionals
+            {
+                const newId = books.length > 0 ? Math.max(...books.map(book => book.id)) + 1 : 1;
+                
+                const newBook = {
+                    id: newId,
+                    title: title,
+                    author: author,
+                    isbn: isbn,
+                    available: available
+                };
+                
+                // Using push() to add new book
+                books.push(newBook);
+                showMessage(`Book "${title}" added successfully!`, "success");
+                updateDisplay();
+            }
+        }
+        
+        // Function to issue a book with default parameters
+        function issueBook(bookId, memberId = "GUEST") {
+            // Local variables for issued book details
+            let issuedBook = null;
+            let issueDate = new Date().toLocaleDateString();
+            
+            // Block scope for availability check
+            {
+                const bookIndex = books.findIndex(book => book.id === bookId);
+                
+                if (bookIndex === -1) {
+                    showMessage("Book not found!", "error");
+                    return false;
+                }
+                
+                if (!books[bookIndex].available) {
+                    showMessage("Book is already issued!", "error");
+                    return false;
+                }
+                
+                // Update book status
+                books[bookIndex].available = false;
+                books[bookIndex].issuedTo = memberId;
+                books[bookIndex].issueDate = issueDate;
+                
+                issuedBook = books[bookIndex];
+                showMessage(`Book "${issuedBook.title}" issued to ${memberId}`, "success");
+                updateDisplay();
+                return true;
+            }
+        }
+        
+        // Function to return a book with default parameters
+        function returnBook(bookId, condition = "Good") {
+            // Local variables for return details
+            let returnedBook = null;
+            let returnDate = new Date().toLocaleDateString();
+            
+            // Block scope for conditionals
+            {
+                const bookIndex = books.findIndex(book => book.id === bookId);
+                
+                if (bookIndex === -1) {
+                    showMessage("Book not found!", "error");
+                    return false;
+                }
+                
+                if (books[bookIndex].available) {
+                    showMessage("Book is not issued!", "error");
+                    return false;
+                }
+                
+                // Update book status
+                books[bookIndex].available = true;
+                delete books[bookIndex].issuedTo;
+                delete books[bookIndex].issueDate;
+                
+                returnedBook = books[bookIndex];
+                showMessage(`Book "${returnedBook.title}" returned successfully`, "success");
+                
+                // If condition is not good, mark for removal
+                if (condition !== "Good") {
+                    showMessage(`Book "${returnedBook.title}" is damaged and will be removed`, "info");
+                    // In a real system, we might move it to a different array or flag it
+                }
+                
+                updateDisplay();
+                return true;
+            }
+        }
+        
+        // Function to search for a book with default parameters
+        function searchBook(query, searchBy = "title") {
+            // Block scope for search
+            {
+                const results = books.filter(book => {
+                    const fieldValue = book[searchBy] ? book[searchBy].toString().toLowerCase() : "";
+                    return fieldValue.includes(query.toLowerCase());
+                });
+                
+                if (results.length === 0) {
+                    showMessage(`No books found with ${searchBy} containing "${query}"`, "info");
+                    return [];
+                }
+                
+                showMessage(`Found ${results.length} book(s) with ${searchBy} containing "${query}"`, "success");
+                return results;
+            }
+        }
+        
+        // Function to list all books (called before definition due to hoisting)
+        function listBooks() {
+            console.log("Listing all books:");
+            books.forEach(book => {
+                console.log(`- ${book.title} by ${book.author} (${book.available ? 'Available' : 'Issued'})`);
+            });
+            return books;
+        }
+        
+        // Function to display books in the UI
+        function displayBooks(booksToDisplay = books) {
+            const container = document.getElementById('booksContainer');
+            container.innerHTML = '';
+            
+            if (booksToDisplay.length === 0) {
+                container.innerHTML = '<p class="message info">No books to display</p>';
+                return;
+            }
+            
+            booksToDisplay.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                bookCard.innerHTML = `
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-details">
+                        <span>by ${book.author}</span>
+                        <span class="${book.available ? 'status-available' : 'status-issued'}">
+                            ${book.available ? 'Available' : `Issued to: ${book.issuedTo}`}
+                        </span>
+                    </div>
+                    <div class="book-details">
+                        <span>ISBN: ${book.isbn}</span>
+                        <span>ID: ${book.id}</span>
+                    </div>
+                `;
+                container.appendChild(bookCard);
+            });
+        }
+        
+        // Function to update statistics
+        function updateStats() {
+            // Using reduce() to count total issued books
+            const issuedCount = books.reduce((count, book) => {
+                return count + (book.available ? 0 : 1);
+            }, 0);
+            
+            // Using filter() to get available books
+            const availableBooks = books.filter(book => book.available);
+            
+            document.getElementById('totalBooks').textContent = books.length;
+            document.getElementById('availableBooks').textContent = availableBooks.length;
+            document.getElementById('issuedBooks').textContent = issuedCount;
+        }
+        
+        // Function to show messages
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
+            
+            // Clear message after 3 seconds
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 3000);
+        }
+        
+        // Function to update the entire display
+        function updateDisplay() {
+            displayBooks();
+            updateStats();
+        }
+        
+        // Function to remove damaged books (using splice)
+        function removeDamagedBooks() {
+            // In a real system, we would have a damaged flag
+            // For demonstration, we'll remove the last book
+            if (books.length > 0) {
+                const removedBook = books.splice(books.length - 1, 1)[0];
+                showMessage(`Removed damaged book: "${removedBook.title}"`, "info");
+                updateDisplay();
+            } else {
+                showMessage("No books to remove", "info");
+            }
+        }
+        
+        // Function to show only available books (using filter)
+        function showAvailableBooks() {
+            const availableBooks = books.filter(book => book.available);
+            displayBooks(availableBooks);
+            showMessage(`Showing ${availableBooks.length} available books`, "info");
+        }
+        
+        // Function to check if all books are returned (using every)
+        function checkAllBooksReturned() {
+            const allReturned = books.every(book => book.available);
+            
+            if (allReturned) {
+                showMessage("All books are returned and available", "success");
+            } else {
+                showMessage("Some books are still issued", "info");
+            }
+            
+            return allReturned;
+        }
+        
+        // Function to extract only book titles (using map)
+        function getBookTitles() {
+            const titles = books.map(book => book.title);
+            console.log("All book titles:", titles);
+            return titles;
+        }
+        
+        // Function to check if a book exists (using includes with map)
+        function checkBookExists(title) {
+            const titles = books.map(book => book.title.toLowerCase());
+            const exists = titles.includes(title.toLowerCase());
+            
+            if (exists) {
+                showMessage(`Book "${title}" exists in the library`, "success");
+            } else {
+                showMessage(`Book "${title}" does not exist in the library`, "info");
+            }
+            
+            return exists;
+        }
+        
+        // Event listeners
+        document.getElementById('addBookBtn').addEventListener('click', () => {
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            const isbn = document.getElementById('bookIsbn').value;
+            
+            if (!title) {
+                showMessage("Please enter a book title", "error");
+                return;
+            }
+            
+            addBook(title, author, isbn);
+            
+            // Clear form
+            document.getElementById('bookTitle').value = '';
+            document.getElementById('bookAuthor').value = '';
+            document.getElementById('bookIsbn').value = '';
+        });
+        
+        document.getElementById('issueBookBtn').addEventListener('click', () => {
+            const title = document.getElementById('bookTitle').value;
+            const memberId = document.getElementById('memberId').value || "GUEST";
+            
+            if (!title) {
+                showMessage("Please enter a book title to issue", "error");
+                return;
+            }
+            
+            const book = books.find(b => b.title.toLowerCase() === title.toLowerCase());
+            
+            if (!book) {
+                showMessage(`Book "${title}" not found`, "error");
+                return;
+            }
+            
+            issueBook(book.id, memberId);
+        });
+        
+        document.getElementById('returnBookBtn').addEventListener('click', () => {
+            const title = document.getElementById('bookTitle').value;
+            
+            if (!title) {
+                showMessage("Please enter a book title to return", "error");
+                return;
+            }
+            
+            const book = books.find(b => b.title.toLowerCase() === title.toLowerCase());
+            
+            if (!book) {
+                showMessage(`Book "${title}" not found`, "error");
+                return;
+            }
+            
+            returnBook(book.id);
+        });
+        
+        document.getElementById('searchBookBtn').addEventListener('click', () => {
+            const query = document.getElementById('bookTitle').value;
+            
+            if (!query) {
+                showMessage("Please enter a search term", "error");
+                return;
+            }
+            
+            const results = searchBook(query);
+            displayBooks(results);
+        });
+        
+        document.getElementById('removeDamagedBtn').addEventListener('click', removeDamagedBooks);
+        
+        document.getElementById('showAvailableBtn').addEventListener('click', showAvailableBooks);
+        
+        document.getElementById('checkAllReturnedBtn').addEventListener('click', checkAllBooksReturned);
+        
+        // Initialize the display
+        updateDisplay();
+        
+        // Demonstrate array methods
+        console.log("Book titles:", getBookTitles());
+        console.log("Does '1984' exist?", checkBookExists("1984"));
+        console.log("Are all books returned?", checkAllBooksReturned());
+    </script>
+</body>
+</html>
